@@ -68,6 +68,7 @@ class TranslatePlugin extends BasePlugin
     {
         craft()->on('i18n.onAddLocale', array($this, 'onAddLocale'));
         craft()->on('i18n.onBeforeDeleteLocale', array($this, 'onBeforeDeleteLocale'));
+        craft()->on('plugins.onLoadPlugins', array($this, 'onLoadPlugins'));
     }
 
     /**
@@ -84,5 +85,11 @@ class TranslatePlugin extends BasePlugin
     public function onBeforeDeleteLocale(Event $event)
     {
         craft()->translate->deleteTranslationFile($event->params['localeId']);
+    }
+
+    /**/
+    public function onLoadPlugins()
+    {
+        craft()->translate->checkTranslationFiles();
     }
 }

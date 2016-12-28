@@ -45,8 +45,12 @@ class TranslateElementType extends BaseElementType
     public function defineAvailableTableAttributes()
     {
         return array(
-            'original' => array('label' => Craft::t('Original')),
-            'field'    => array('label' => Craft::t('Translation')),
+            'original' => array(
+                'label' => Craft::t('Original')
+            ),
+            'field'    => array(
+                'label' => Craft::t('Translation')
+            ),
         );
     }
 
@@ -57,7 +61,10 @@ class TranslateElementType extends BaseElementType
      */
     public function getDefaultTableAttributes($source = null)
     {
-        return array('original', 'field');
+        return array(
+            'original',
+            'field'
+        );
     }
 
     /**
@@ -81,8 +88,14 @@ class TranslateElementType extends BaseElementType
             'translation' => AttributeType::String,
             'source'      => AttributeType::String,
             'file'        => AttributeType::String,
-            'status'      => array(AttributeType::String, 'default' => TranslateModel::DONE),
-            'locale'      => array(AttributeType::String, 'default' => 'en_us'),
+            'status'      => array(
+                AttributeType::String,
+                'default' => TranslateModel::DONE
+            ),
+            'locale'      => array(
+                AttributeType::String,
+                'default' => 'en_us'
+            ),
         );
     }
 
@@ -178,7 +191,9 @@ class TranslateElementType extends BaseElementType
         // Get sources by hook
         $plugins = craft()->plugins->call('registerTranslateSources');
         if (count($plugins)) {
-            $sources[] = array('heading' => Craft::t('Custom'));
+            $sources[] = array(
+                'heading' => Craft::t('Custom')
+            );
             foreach ($plugins as $plugin) {
 
                 // Add as own source

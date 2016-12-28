@@ -36,15 +36,19 @@ class TranslateModel extends BaseElementModel
     protected function defineAttributes()
     {
         return array_merge(
-            parent::defineAttributes(), array(
-            'id'          => AttributeType::String,
-            'original'    => AttributeType::String,
-            'translation' => AttributeType::String,
-            'source'      => AttributeType::Mixed,
-            'file'        => AttributeType::String,
-            'locale'      => array(AttributeType::String, 'default' => 'en_us'),
-            'field'       => AttributeType::Mixed,
-        )
+            parent::defineAttributes(),
+            array(
+                'id'          => AttributeType::String,
+                'original'    => AttributeType::String,
+                'translation' => AttributeType::String,
+                'source'      => AttributeType::Mixed,
+                'file'        => AttributeType::String,
+                'locale'      => array(
+                    AttributeType::String,
+                    'default' => 'en_us'
+                ),
+                'field'       => AttributeType::Mixed,
+            )
         );
     }
 }

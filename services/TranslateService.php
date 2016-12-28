@@ -280,4 +280,26 @@ class TranslateService extends BaseApplicationComponent
             IOHelper::deleteFile($file);
         }
     }
+
+    /**/
+    public function checkTranslationFiles()
+    {
+        $locales = craft()->i18n->getSiteLocales();
+        foreach($locales as $locale) {
+            $localeId = $locale->getId();
+            if(!IOHelper::fileExists($this->getTranslationFile($localeId))) {
+                $this->saveTranslationFile($localeId);
+            };
+        }
+    }
+
+    /**
+     * @param $localeId
+     *
+     * @return mixed
+     */
+    public function getTranslations($localeId) {
+        $translateRecord = $this->getByLocale($localeId);
+        return unserialize($translateRecord->getAttribute('translations'));
+    }
 }
