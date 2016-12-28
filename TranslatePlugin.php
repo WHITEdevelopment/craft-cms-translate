@@ -41,7 +41,7 @@ class TranslatePlugin extends BasePlugin
      */
     public function getDocumentationUrl()
     {
-        return 'https://github.com/WHITEdevelopment/craft-cms-translate';
+        return 'https://github.com/WHITEdevelopment/craft-translate';
     }
 
     /**
