@@ -2,21 +2,10 @@
 
 namespace Craft;
 
-/**
- * Translate Plugin.
- *
- * @author    Bob Olde Hampsink <b.oldehampsink@nerds.company>
- * @copyright Copyright (c) 2016, Bob Olde Hampsink
- * @license   MIT
- *
- * @link      http://github.com/boboldehampsink
- */
 class TranslatePlugin extends BasePlugin
 {
     /**
-     * Get plugin name.
-     *
-     * @return string
+     * @return null|string
      */
     public function getName()
     {
@@ -24,42 +13,76 @@ class TranslatePlugin extends BasePlugin
     }
 
     /**
-     * Get plugin version.
-     *
      * @return string
      */
     public function getVersion()
     {
-        return '0.4.2';
+        return '0.5.0';
     }
 
     /**
-     * Get plugin developer.
-     *
      * @return string
      */
     public function getDeveloper()
     {
-        return 'Bob Olde Hampsink';
+        return 'Internetbureau WHITE';
     }
 
     /**
-     * Get plugin developer url.
-     *
      * @return string
      */
     public function getDeveloperUrl()
     {
-        return 'http://github.com/boboldehampsink';
+        return 'http://www.white.nl';
     }
 
     /**
-     * Has CP section?
-     *
+     * @return string
+     */
+    public function getDocumentationUrl()
+    {
+        return 'https://github.com/WHITEdevelopment/craft-cms-translate';
+    }
+
+    /**
      * @return bool
      */
     public function hasCpSection()
     {
         return true;
+    }
+
+    /**
+     * init
+     */
+    public function init()
+    {
+        parent::init();
+        $this->addEventListeners();
+    }
+
+    /**
+     * event listeners
+     */
+    protected function addEventListeners()
+    {
+        craft()->on('i18n.onAddLocale', array($this, 'onAddLocale'));
+        craft()->on('i18n.onBeforeDeleteLocale', array($this, 'onBeforeDeleteLocale'));
+    }
+
+    /**
+     * @param Event $event
+     */
+    public function onAddLocale(Event $event)
+    {
+        craft()->translate->saveTranslationFile($event->params['localeId']);
+    }
+
+    /**
+     * @param Event $event
+     */
+    public function onBeforeDeleteLocale(Event $event)
+    {
+        craft()->translate->deleteTranslationFile($event->params['localeId']);
     }
 }

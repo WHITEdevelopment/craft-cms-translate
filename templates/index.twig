@@ -10,9 +10,11 @@
             {{ getCsrfInput() }}
             <input type="hidden" name="action" value="translate/upload">
             <input type="hidden" name="locale" value="{{ craft.locale }}">
-            <input type="file" name="translations-upload" style="display: none" />
+            <input type="file" name="translations-upload" style="display: none"/>
         </form>
-        <div class="btn submit translations-upload-button" data-icon="upload" style="position: relative; overflow: hidden;" role="button">{{ "Upload file"|t }}</div>
+        <div class="btn submit translations-upload-button" data-icon="upload" style="position: relative; overflow: hidden;" role="button">
+            {{ "Upload file"|t }}
+        </div>
     </div>
 
     {{ parent() }}
@@ -23,12 +25,14 @@
         {{ getCsrfInput() }}
         <input type="hidden" name="action" value="translate/save">
         <input type="hidden" name="locale" value="{{ craft.locale }}">
-        
+
         {{ parent() }}
-        
+
         <div class="buttons hidden">
-            <input type="submit" class="btn submit translations-save-button" value="{{ "Save"|t }}"> 
-            <a class="btn submit translations-download-button" href="{{ actionUrl('translate/download', {'locale': craft.locale }) }}">{{ "Download"|t }}</a>
+            <input type="submit" class="btn submit translations-save-button" value="{{ "Save"|t }}">
+            <a class="btn submit translations-download-button" href="{{ actionUrl('translate/download', {'locale': craft.locale }) }}">
+                {{ "Download"|t }}
+            </a>
         </div>
     </form>
 {% endblock %}

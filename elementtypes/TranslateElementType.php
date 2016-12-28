@@ -2,21 +2,10 @@
 
 namespace Craft;
 
-/**
- * Translate Element Type.
- *
- * @author    Bob Olde Hampsink <b.oldehampsink@nerds.company>
- * @copyright Copyright (c) 2016, Bob Olde Hampsink
- * @license   MIT
- *
- * @link      http://github.com/boboldehampsink
- */
 class TranslateElementType extends BaseElementType
 {
     /**
-     * Return element type name.
-     *
-     * @return string
+     * @return null|string
      */
     public function getName()
     {
@@ -24,8 +13,6 @@ class TranslateElementType extends BaseElementType
     }
 
     /**
-     * Return true so we have a locale select menu.
-     *
      * @return bool
      */
     public function isLocalized()
@@ -34,8 +21,6 @@ class TranslateElementType extends BaseElementType
     }
 
     /**
-     * Return true so we have a status select menu.
-     *
      * @return bool
      */
     public function hasStatuses()
@@ -44,35 +29,29 @@ class TranslateElementType extends BaseElementType
     }
 
     /**
-     * Define statuses.
-     *
      * @return array
      */
     public function getStatuses()
     {
         return array(
-            TranslateModel::DONE => Craft::t('Done'),
+            TranslateModel::DONE    => Craft::t('Done'),
             TranslateModel::PENDING => Craft::t('Pending'),
         );
     }
 
     /**
-     * Define available table column names.
-     *
      * @return array
      */
     public function defineAvailableTableAttributes()
     {
         return array(
             'original' => array('label' => Craft::t('Original')),
-            'field' => array('label' => Craft::t('Translation')),
+            'field'    => array('label' => Craft::t('Translation')),
         );
     }
 
     /**
-     * Returns the default table attributes.
-     *
-     * @param string $source
+     * @param null $source
      *
      * @return array
      */
@@ -82,12 +61,10 @@ class TranslateElementType extends BaseElementType
     }
 
     /**
-     * Don't encode the attribute html.
-     *
      * @param BaseElementModel $element
      * @param string           $attribute
      *
-     * @return string
+     * @return mixed
      */
     public function getTableAttributeHtml(BaseElementModel $element, $attribute)
     {
@@ -95,25 +72,21 @@ class TranslateElementType extends BaseElementType
     }
 
     /**
-     * Define criteria.
-     *
      * @return array
      */
     public function defineCriteriaAttributes()
     {
         return array(
-            'original' => AttributeType::String,
+            'original'    => AttributeType::String,
             'translation' => AttributeType::String,
-            'source' => AttributeType::String,
-            'file' => AttributeType::String,
-            'status' => array(AttributeType::String, 'default' => TranslateModel::DONE),
-            'locale' => array(AttributeType::String, 'default' => 'en_us'),
+            'source'      => AttributeType::String,
+            'file'        => AttributeType::String,
+            'status'      => array(AttributeType::String, 'default' => TranslateModel::DONE),
+            'locale'      => array(AttributeType::String, 'default' => 'en_us'),
         );
     }
 
     /**
-     * Cancel the elements query.
-     *
      * @param DbCommand            $query
      * @param ElementCriteriaModel $criteria
      *
@@ -125,11 +98,9 @@ class TranslateElementType extends BaseElementType
     }
 
     /**
-     * Create element from row.
-     *
      * @param array $row
      *
-     * @return TranslateModel
+     * @return BaseModel
      */
     public function populateElementModel($row)
     {
@@ -137,9 +108,7 @@ class TranslateElementType extends BaseElementType
     }
 
     /**
-     * Define the sources.
-     *
-     * @param string $context
+     * @param null $context
      *
      * @return array
      */
@@ -149,10 +118,10 @@ class TranslateElementType extends BaseElementType
         $pluginSources = array();
         $plugins = craft()->plugins->getPlugins();
         foreach ($plugins as $path => $plugin) {
-            $pluginSources['plugins:'.$path] = array(
-                'label' => $plugin->classHandle,
+            $pluginSources['plugins:' . $path] = array(
+                'label'    => $plugin->classHandle,
                 'criteria' => array(
-                    'source' => craft()->path->getPluginsPath().$path,
+                    'source' => craft()->path->getPluginsPath() . $path,
                 ),
             );
         }
@@ -169,8 +138,8 @@ class TranslateElementType extends BaseElementType
                 $path = $matches[2];
 
                 // Add template source
-                $templateSources['templates:'.$path] = array(
-                    'label' => $path,
+                $templateSources['templates:' . $path] = array(
+                    'label'    => $path,
                     'criteria' => array(
                         'source' => $template,
                     ),
@@ -180,8 +149,8 @@ class TranslateElementType extends BaseElementType
 
         // Get default sources
         $sources = array(
-            '*' => array(
-                'label' => Craft::t('All translations'),
+            '*'         => array(
+                'label'    => Craft::t('All translations'),
                 'criteria' => array(
                     'source' => array(
                         craft()->path->getPluginsPath(),
@@ -190,19 +159,19 @@ class TranslateElementType extends BaseElementType
                 ),
             ),
             array('heading' => Craft::t('Default')),
-            'plugins' => array(
-                'label' => Craft::t('Plugins'),
+            'plugins'   => array(
+                'label'    => Craft::t('Plugins'),
                 'criteria' => array(
                     'source' => craft()->path->getPluginsPath(),
                 ),
-                'nested' => $pluginSources,
+                'nested'   => $pluginSources,
             ),
             'templates' => array(
-                'label' => Craft::t('Templates'),
+                'label'    => Craft::t('Templates'),
                 'criteria' => array(
                     'source' => craft()->path->getSiteTemplatesPath(),
                 ),
-                'nested' => $templateSources,
+                'nested'   => $templateSources,
             ),
         );
 
@@ -227,35 +196,33 @@ class TranslateElementType extends BaseElementType
     }
 
     /**
-     * Return the html.
-     *
-     * @param array  $criteria
-     * @param array  $disabledElementIds
-     * @param array  $viewState
-     * @param string $sourceKey
-     * @param string $context
-     * @param bool   $includeContainer
-     * @param bool   $showCheckboxes
+     * @param ElementCriteriaModel $criteria
+     * @param array                $disabledElementIds
+     * @param array                $viewState
+     * @param null|string          $sourceKey
+     * @param null|string          $context
+     * @param bool                 $includeContainer
+     * @param bool                 $showCheckboxes
      *
      * @return string
      */
     public function getIndexHtml($criteria, $disabledElementIds, $viewState, $sourceKey, $context, $includeContainer, $showCheckboxes)
     {
         $variables = array(
-            'viewMode' => $viewState['mode'],
-            'context' => $context,
-            'elementType' => new ElementTypeVariable($this),
+            'viewMode'           => $viewState['mode'],
+            'context'            => $context,
+            'elementType'        => new ElementTypeVariable($this),
             'disabledElementIds' => $disabledElementIds,
-            'attributes' => $this->getTableAttributesForSource($sourceKey),
-            'elements' => craft()->translate->get($criteria),
-            'showCheckboxes' => $showCheckboxes,
+            'attributes'         => $this->getTableAttributesForSource($sourceKey),
+            'elements'           => craft()->translate->get($criteria),
+            'showCheckboxes'     => $showCheckboxes,
         );
 
         // Inject some custom js also
         craft()->templates->includeJs("$('table.fullwidth thead th').css('width', '50%');");
         craft()->templates->includeJs("$('.buttons.hidden').removeClass('hidden');");
 
-        $template = '_elements/'.$viewState['mode'].'view/'.($includeContainer ? 'container' : 'elements');
+        $template = '_elements/' . $viewState['mode'] . 'view/' . ($includeContainer ? 'container' : 'elements');
 
         return craft()->templates->render($template, $variables);
     }

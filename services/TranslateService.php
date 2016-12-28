@@ -2,56 +2,57 @@
 
 namespace Craft;
 
-/**
- * Translate Service.
- *
- * Contains translate logics.
- *
- * @author    Bob Olde Hampsink <b.oldehampsink@nerds.company>
- * @copyright Copyright (c) 2016, Bob Olde Hampsink
- * @license   MIT
- *
- * @link      http://github.com/boboldehampsink
- */
 class TranslateService extends BaseApplicationComponent
 {
+    protected $translateRecord;
+
     /**
-     * Translate tag finding regular expressions.
+     * TranslateService constructor.
      *
+     * @param null $translateRecord
+     */
+    public function __construct($translateRecord = null)
+    {
+        $this->translateRecord = $translateRecord;
+        if (is_null($this->translateRecord)) {
+            $this->translateRecord = TranslateRecord::model();
+        }
+    }
+
+    /**
      * @var array
      */
-    protected $_expressions = array(
+    protected $_expressions
+        = array(
 
-        // Expressions for Craft::t() variants
-        'php' => array(
-            // Single quotes
-            '/Craft::(t|translate)\(.*?\'(.*?)\'.*?\)/',
-            // Double quotes
-            '/Craft::(t|translate)\(.*?"(.*?)".*?\)/',
-        ),
+            // Expressions for Craft::t() variants
+            'php'  => array(
+                // Single quotes
+                '/Craft::(t|translate)\(.*?\'(.*?)\'.*?\)/',
+                // Double quotes
+                '/Craft::(t|translate)\(.*?"(.*?)".*?\)/',
+            ),
 
-        // Expressions for |t() variants
-        'html' => array(
-            // Single quotes
-            '/(\{\{\s*|\{\%.*?|:\s*)\'(.*?)\'.*?\|.*?(t|translate)(\(.*?\)|).*?(\}\}|\%\}|,)/',
-            // Double quotes
-            '/(\{\{\s*|\{\%.*?|:\s*)"(.*?)".*?\|.*?(t|translate)(\(.*?\)|).*?(\}\}|\%\}|,)/',
-        ),
+            // Expressions for |t() variants
+            'html' => array(
+                // Single quotes
+                '/(\{\{\s*|\{\%.*?|:\s*)\'(.*?)\'.*?\|.*?(t|translate)(\(.*?\)|).*?(\}\}|\%\}|,)/',
+                // Double quotes
+                '/(\{\{\s*|\{\%.*?|:\s*)"(.*?)".*?\|.*?(t|translate)(\(.*?\)|).*?(\}\}|\%\}|,)/',
+            ),
 
-        // Expressions for Craft.t() variants
-        'js' => array(
-            // Single quotes
-            '/Craft\.(t|translate)\(.*?\'(.*?)\'.*?\)/',
-            // Double quotes
-            '/Craft\.(t|translate)\(.*?"(.*?)".*?\)/',
-        ),
+            // Expressions for Craft.t() variants
+            'js'   => array(
+                // Single quotes
+                '/Craft\.(t|translate)\(.*?\'(.*?)\'.*?\)/',
+                // Double quotes
+                '/Craft\.(t|translate)\(.*?"(.*?)".*?\)/',
+            ),
 
-    );
+        );
 
     /**
-     * Initialize service.
-     *
-     * @codeCoverageIgnore
+     * init
      */
     public function init()
     {
@@ -65,46 +66,34 @@ class TranslateService extends BaseApplicationComponent
     }
 
     /**
-     * Set translations.
-     *
-     * @param string $locale
-     * @param array  $translations
-     *
-     * @throws Exception if unable to write to file
+     * @param       $locale
+     * @param array $translations
      */
     public function set($locale, array $translations)
     {
-        // Determine locale's translation destination file
-        $file = __DIR__.'/../translations/'.$locale.'.php';
+        $translateRecord = $this->getByLocale($locale);
 
-        // Get current translation
-        if ($current = @include($file)) {
+        // Get current translation (if any)
+        if ($current = unserialize($translateRecord->getAttribute('translations'))) {
+            // merge with new data
             $translations = array_merge($current, $translations);
         }
 
-        // Prepare php file
-        $php = "<?php\r\n\r\nreturn ";
+        // set model
+        $translateModel = new TranslateModel();
 
-        // Get translations as php
-        $php .= var_export($translations, true);
-
-        // End php file
-        $php .= ';';
-
-        // Convert double space to tab (as in Craft's own translation files)
-        $php = str_replace("  '", "\t'", $php);
-
-        // Save code to file
-        if (!IOHelper::writeToFile($file, $php)) {
-
-            // If not, complain
-            throw new Exception(Craft::t('Something went wrong while saving your translations'));
-        }
+        // save to database
+        $translateModel::populateModel($translateRecord);
+        $translateRecord->setAttributes(
+            array(
+                'locale'       => $locale,
+                'translations' => serialize($translations),
+            )
+        );
+        $translateRecord->save();
     }
 
     /**
-     * Get translations by criteria.
-     *
      * @param ElementCriteriaModel $criteria
      *
      * @return array
@@ -157,10 +146,23 @@ class TranslateService extends BaseApplicationComponent
     }
 
     /**
-     * Open file and parse translate tags.
+     * @param $locale
      *
-     * @param string               $path
-     * @param string               $file
+     * @return TranslateRecord
+     */
+    public function getByLocale($locale)
+    {
+        $translateRecord = $this->translateRecord->find('locale = :locale', array('locale' => $locale));
+        if (!$translateRecord) {
+            $translateRecord = $this->translateRecord->create();
+        }
+
+        return $translateRecord;
+    }
+
+    /**
+     * @param                      $path
+     * @param                      $file
      * @param ElementCriteriaModel $criteria
      *
      * @return array
@@ -189,26 +191,34 @@ class TranslateService extends BaseApplicationComponent
                     $translation = Craft::t($original, array(), null, $criteria->locale);
 
                     // Show translation in textfield
-                    $field = craft()->templates->render('_includes/forms/text', array(
-                        'id' => ElementHelper::createSlug($original),
-                        'name' => 'translation['.$original.']',
-                        'value' => $translation,
-                        'placeholder' => $translation,
-                    ));
+                    $field = craft()->templates->render(
+                        '_includes/forms/text', array(
+                            'id'          => ElementHelper::createSlug($original),
+                            'name'        => 'translation[' . $original . ']',
+                            'value'       => $translation,
+                            'placeholder' => $translation,
+                        )
+                    );
 
                     // Fill element with translation data
-                    $element = TranslateModel::populateModel(array(
-                        'id' => ElementHelper::createSlug($original),
-                        'original' => $original,
-                        'translation' => $translation,
-                        'source' => $path,
-                        'file' => $file,
-                        'locale' => $criteria->locale,
-                        'field' => $field,
-                    ));
+                    $element = TranslateModel::populateModel(
+                        array(
+                            'id'          => ElementHelper::createSlug($original),
+                            'original'    => $original,
+                            'translation' => $translation,
+                            'source'      => $path,
+                            'file'        => $file,
+                            'locale'      => $criteria->locale,
+                            'field'       => $field,
+                        )
+                    );
 
                     // If searching, only return matches
-                    if ($criteria->search && !stristr($element->original, $criteria->search) && !stristr($element->translation, $criteria->search)) {
+                    if ($criteria->search && !stristr($element->original, $criteria->search)
+                        && !stristr(
+                            $element->translation, $criteria->search
+                        )
+                    ) {
                         continue;
                     }
 
@@ -225,5 +235,49 @@ class TranslateService extends BaseApplicationComponent
 
         // Return occurences
         return $occurences;
+    }
+
+    /**
+     * @return string
+     */
+    private function getTranslationFilePath()
+    {
+        // Determine locale's translation destination file
+        return __DIR__ . '/../translations/';
+    }
+
+    /**
+     * @param $localeId
+     *
+     * @return string
+     */
+    private function getTranslationFile($localeId)
+    {
+        // Determine locale's translation destination file
+        return $this->getTranslationFilePath() . $localeId . '.php';
+    }
+
+    /**
+     * @param $localeId
+     *
+     * @throws Exception
+     */
+    public function saveTranslationFile($localeId)
+    {
+        // copy php file
+        IOHelper::copyFile($this->getTranslationFilePath() . '_template.php', $this->getTranslationFile($localeId));
+    }
+
+    /**
+     * @param $localeId
+     */
+    public function deleteTranslationFile($localeId)
+    {
+        // set file
+        $file = $this->getTranslationFile($localeId);
+
+        if (IOHelper::fileExists($file)) {
+            IOHelper::deleteFile($file);
+        }
     }
 }
