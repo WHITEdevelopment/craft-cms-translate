@@ -2,21 +2,12 @@
 
 namespace Craft;
 
-/**
- * Translate Controller.
- *
- * Contains translate request actions.
- *
- * @author    Bob Olde Hampsink <b.oldehampsink@nerds.company>
- * @copyright Copyright (c) 2016, Bob Olde Hampsink
- * @license   MIT
- *
- * @link      http://github.com/boboldehampsink
- */
+use CUploadedFile;
+
 class TranslateController extends BaseController
 {
     /**
-     * Download translations.
+     * download
      */
     public function actionDownload()
     {
@@ -37,17 +28,17 @@ class TranslateController extends BaseController
         $occurences = craft()->translate->get($criteria);
 
         // Re-order data
-        $data = StringHelper::convertToUTF8('"'.Craft::t('Original').'","'.Craft::t('Translation')."\"\r\n");
+        $data = StringHelper::convertToUTF8('"' . Craft::t('Original') . '","' . Craft::t('Translation') . "\"\r\n");
         foreach ($occurences as $element) {
-            $data .= StringHelper::convertToUTF8('"'.$element->original.'","'.$element->translation."\"\r\n");
+            $data .= StringHelper::convertToUTF8('"' . $element->original . '","' . $element->translation . "\"\r\n");
         }
 
         // Download the file
-        craft()->request->sendFile('translations_'.$locale.'.csv', $data, array('forceDownload' => true, 'mimeType' => 'text/csv'));
+        craft()->request->sendFile('translations_' . $locale . '.csv', $data, array('forceDownload' => true, 'mimeType' => 'text/csv'));
     }
 
     /**
-     * Upload translations.
+     * upload
      */
     public function actionUpload()
     {
@@ -55,10 +46,10 @@ class TranslateController extends BaseController
         $locale = craft()->request->getRequiredPost('locale');
 
         // Get file
-        $file = \CUploadedFile::getInstanceByName('translations-upload');
+        $file = CUploadedFile::getInstanceByName('translations-upload');
 
         // Get filepath
-        $path = craft()->path->getTempUploadsPath().$file->getName();
+        $path = craft()->path->getTempUploadsPath() . $file->getName();
 
         // Save file to Craft's temp folder
         $file->saveAs($path);
@@ -82,7 +73,7 @@ class TranslateController extends BaseController
     }
 
     /**
-     * Save translations.
+     * save
      */
     public function actionSave()
     {
