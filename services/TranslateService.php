@@ -243,7 +243,7 @@ class TranslateService extends BaseApplicationComponent
     private function getTranslationFilePath()
     {
         // Determine locale's translation destination file
-        return __DIR__ . '/../translations/';
+        return __DIR__ . '/../translation_files/';
     }
 
     /**
