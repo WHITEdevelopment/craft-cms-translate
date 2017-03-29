@@ -178,6 +178,8 @@ class TranslateService extends BaseApplicationComponent
         // Get extension
         $extension = IOHelper::getExtension($file);
 
+        $criteria->locale = empty($criteria->locale) ? craft()->i18n->getEditableLocaleIds()[0] : $criteria->locale;
+
         // Get matches per extension
         foreach ($this->_expressions[$extension] as $regex) {
 
