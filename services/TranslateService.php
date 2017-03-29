@@ -177,6 +177,7 @@ class TranslateService extends BaseApplicationComponent
 
         // Get extension
         $extension = IOHelper::getExtension($file);
+        $locale = $criteria->locale == '' ? craft()->i18n->getEditableLocaleIds()[0] : $criteria->locale;
 
         // Get matches per extension
         foreach ($this->_expressions[$extension] as $regex) {
@@ -188,7 +189,7 @@ class TranslateService extends BaseApplicationComponent
                 foreach ($matches[2] as $original) {
 
                     // Translate
-                    $translation = Craft::t($original, array(), null, $criteria->locale);
+                    $translation = Craft::t($original, array(), null, $locale);
 
                     // Show translation in textfield
                     $field = craft()->templates->render(
