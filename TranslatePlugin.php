@@ -17,7 +17,7 @@ class TranslatePlugin extends BasePlugin
      */
     public function getVersion()
     {
-        return '0.7.3';
+        return '1.0.0';
     }
 
     /**
@@ -25,7 +25,7 @@ class TranslatePlugin extends BasePlugin
      */
     public function getDeveloper()
     {
-        return 'Internetbureau WHITE';
+        return 'Digital Agency WHITE';
     }
 
     /**
