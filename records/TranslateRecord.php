@@ -25,6 +25,7 @@ class TranslateRecord extends BaseRecord
             'translations' => array(
                 'type'     => AttributeType::Mixed,
                 'required' => true,
+                'column' => ColumnType::MediumText,
             ),
         );
     }
